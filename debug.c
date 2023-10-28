@@ -10,10 +10,9 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-#define D    512 // Width & height (dimensions)
-#define S      8 // scaled to
-#define MSW 2048 // map scaled to
-#define MSH  512 // map scaled to
+#define W    800 // Width & height (dimensions)
+#define H    450 // Width & height (dimensions)
+#define S      3 // scaled to
 #define JH    20 // jump
 #define PS     5 // Player speed
 
@@ -82,7 +81,7 @@ void drawEnemy(entity *e) {
 
 void drawLevel(level l){
 
-    al_draw_scaled_bitmap(l.tex, 0, 0, al_get_bitmap_width(l.tex), al_get_bitmap_height(l.tex), l.cor.x, l.cor.y, MSW, MSH, 0);
+    al_draw_scaled_bitmap(l.tex, 0, 0, al_get_bitmap_width(l.tex), al_get_bitmap_height(l.tex), l.cor.x, l.cor.y, al_get_bitmap_width(l.tex)*S, al_get_bitmap_height(l.tex)*S, 0);
 
 }
 
@@ -116,12 +115,12 @@ int main() {
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0); if(!timer) { printf("\033[1;31mINIT_ERR: Couldn't create timer!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created timer.\033[0m\n");}
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue(); if(!queue) { printf("\033[1;31mINIT_ERR: Couldn't create event queue!\033[0mn\n"); return -1;} else{ printf("\33[;32mINIT: Created event queue.\033[0m\n");}
-    ALLEGRO_DISPLAY* disp = al_create_display(D, D); if(!disp) { printf("\033[1;31mINIT_ERR: Couldn't create display!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created display.\033[0m\n");}
+    ALLEGRO_DISPLAY* disp = al_create_display(W, H); if(!disp) { printf("\033[1;31mINIT_ERR: Couldn't create display!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created display.\033[0m\n");}
     ALLEGRO_FONT* font24 = al_load_ttf_font("font.ttf", 24, 0); if(!font24) { printf("\033[1;31mINIT_ERR: Couldn't create font!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created font.\033[0m\n");}
     ALLEGRO_FONT* font40 = al_load_ttf_font("font.ttf", 40, 0); if(!font40) { printf("\033[1;31mINIT_ERR: Couldn't create font!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created font.\033[0m\n");}
     ALLEGRO_SAMPLE* music = al_load_sample("music.ogg"); if(!music) { printf("\033[1;31mINIT_ERR: Couldn't create music!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created music.\033[0m\n");}
     ALLEGRO_SAMPLE_INSTANCE* musicInstance = al_create_sample_instance(music); if(!music) { printf("\033[1;31mINIT_ERR: Couldn't create music!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created music.\033[0m\n");}
-    // ALLEGRO_BITMAP* tile = al_load_bitmap("tile.png"); if(!tile) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of tile!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of tile.\033[0m\n");}
+    ALLEGRO_BITMAP* tile = al_load_bitmap("tile.png"); if(!tile) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of tile!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of tile.\033[0m\n");}
     // ALLEGRO_BITMAP* player = al_load_bitmap("player.png"); if(!player) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of player!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of player.\033[0m\n");}
     // ALLEGRO_BITMAP* enemy = al_load_bitmap("enemy.png"); if(!enemy) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of enemy!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of enemy.\033[0m\n");}
 
@@ -399,48 +398,52 @@ int main() {
 
         if(redraw && al_is_event_queue_empty(queue))
         {
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-            drawLevel(level);
-            drawEntity(player);
+            if (!in_title_screen) {
+                al_clear_to_color(al_map_rgb(0, 0, 0));
+                drawLevel(level);
+                drawEntity(player);
 
 
-            for (int i = 0; i < 10; i++)
-            {
-                if (bullet[i] != NULL)
+                for (int i = 0; i < 10; i++)
                 {
-                    al_draw_filled_rectangle(bullet[i]->x, bullet[i]->y, bullet[i]->x+8, bullet[i]->y+8,  al_map_rgb(188, 231, 132));
-                    // printf("Bullet %d drawn\n", i);
-                    if(bullet[i]->dir == RIGHT){
-                        bullet[i]->x+=10;
-                    } 
-                    else {
-                        bullet[i]->x-=10;
-                    }
+                    if (bullet[i] != NULL)
+                    {
+                        al_draw_filled_rectangle(bullet[i]->x, bullet[i]->y, bullet[i]->x+8, bullet[i]->y+8,  al_map_rgb(188, 231, 132));
+                        // printf("Bullet %d drawn\n", i);
+                        if(bullet[i]->dir == RIGHT){
+                            bullet[i]->x+=10;
+                        } 
+                        else {
+                            bullet[i]->x-=10;
+                        }
+                        
+                        if(bullet[i]->x >= W || bullet[i]->x <= 0){
+                            free(bullet[i]);
+                            bullet[i] = NULL;
+                            printf("Bullet %d destroyed when colliding with a wall\n", i);
+                        }
                     
-                    if(bullet[i]->x >= D || bullet[i]->x <= 0){
-                        free(bullet[i]);
-                        bullet[i] = NULL;
-                        printf("Bullet %d destroyed when colliding with a wall\n", i);
                     }
                 
                 }
-            
-            }
 
-            for (int i = 0; i < 10; i++)
-            {
-                if (oldLevel){
-                    free(enemy[i]);
-                    enemy[i]=NULL;
-                    printf("destroyed enemy from last level\n");
+                for (int i = 0; i < 10; i++)
+                {
+                    if (oldLevel){
+                        free(enemy[i]);
+                        enemy[i]=NULL;
+                        printf("destroyed enemy from last level\n");
+                    }
+                    if(enemy[i]!=NULL){
+                        drawEnemy(enemy[i]);
+                        // printf("Enemy %d drawn\n", i);
+                    }
                 }
-                if(enemy[i]!=NULL){
-                    drawEnemy(enemy[i]);
-                    // printf("Enemy %d drawn\n", i);
-                }
+                oldLevel=false; 
+            } else {
+                al_clear_to_color(al_map_rgb(175, 224, 255));
+                // al_draw_bitmap()
             }
-            oldLevel=false; 
-            
             al_flip_display();
 
             redraw = false;

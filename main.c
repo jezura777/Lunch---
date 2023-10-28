@@ -9,8 +9,9 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-#define D    512 // Width & height (dimensions)
-#define S     64 // scaled to
+#define W    512 // Width (dimensions)
+#define H    512 // Height (dimensions)
+#define S    0.5 // scaled to
 #define MSW 2048 // map scaled to
 #define MSH  512 // map scaled to
 #define JH    20 // jump
@@ -116,7 +117,7 @@ int main() {
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0); if(!timer) { printf("INIT_ERR: Couldn't create timer!\n"); return -1;} else{ printf("INIT: Created timer.\n");}
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue(); if(!queue) { printf("INIT_ERR: Couldn't create event queue!\n"); return -1;} else{ printf("INIT: Created event queue.\n");}
-    ALLEGRO_DISPLAY* disp = al_create_display(D, D); if(!disp) { printf("INIT_ERR: Couldn't create display!\n"); return -1;} else{ printf("INIT: Created display.\n");}
+    ALLEGRO_DISPLAY* disp = al_create_display(W, H); if(!disp) { printf("INIT_ERR: Couldn't create display!\n"); return -1;} else{ printf("INIT: Created display.\n");}
     ALLEGRO_FONT* font24 = al_load_ttf_font("font.ttf", 24, 0); if(!font24) { printf("INIT_ERR: Couldn't create font!\n"); return -1;} else{ printf("INIT: Created font.\n");}
     ALLEGRO_FONT* font40 = al_load_ttf_font("font.ttf", 40, 0); if(!font40) { printf("INIT_ERR: Couldn't create font!\n"); return -1;} else{ printf("INIT: Created font.\n");}
     ALLEGRO_SAMPLE* music = al_load_sample("music.ogg"); if(!music) { printf("INIT_ERR: Couldn't create music!\n"); return -1;} else{ printf("INIT: Created music.\n");}
@@ -202,47 +203,47 @@ int main() {
                     }
                 }
                 
-                //------------MAP------------
+                // //------------MAP------------
 
 
-                if(player.cor.x>=D && level.cor.x==(-3*D)){
-                    level.cor.x=(-2*D);
-                    player.cor.x-=D; if(player.cor.x == 0) player.cor.x++;
-                    score++;
-                    levelIndex++;
-                    newLevel=true;
-                }
+                // if(player.cor.x>=D && level.cor.x==(-3*D)){
+                //     level.cor.x=(-2*D);
+                //     player.cor.x-=D; if(player.cor.x == 0) player.cor.x++;
+                //     score++;
+                //     levelIndex++;
+                //     newLevel=true;
+                // }
 
-                else if(player.cor.x>=D){
-                    level.cor.x-=D;
-                    player.cor.x-=D; if(player.cor.x == 0) player.cor.x++;
-                    score++;
-                    levelIndex++;
-                    newLevel=true;
-                }
+                // else if(player.cor.x>=D){
+                //     level.cor.x-=D;
+                //     player.cor.x-=D; if(player.cor.x == 0) player.cor.x++;
+                //     score++;
+                //     levelIndex++;
+                //     newLevel=true;
+                // }
 
-                if(player.cor.x<=0 && levelIndex==0){
-                    done = true;
-                }
+                // if(player.cor.x<=0 && levelIndex==0){
+                //     done = true;
+                // }
                 
-                else if(player.cor.x<=0 && level.cor.x==(-2*D) && levelIndex>3)
-                {
-                    player.cor.x+=D; if(player.cor.x == D) player.cor.x--;
-                    level.cor.x=(-3*D);
-                    score--;
-                    levelIndex--;
-                    oldLevel = true;
-                }
+                // else if(player.cor.x<=0 && level.cor.x==(-2*D) && levelIndex>3)
+                // {
+                //     player.cor.x+=D; if(player.cor.x == D) player.cor.x--;
+                //     level.cor.x=(-3*D);
+                //     score--;
+                //     levelIndex--;
+                //     oldLevel = true;
+                // }
 
-                else if(player.cor.x<=0){
-                    level.cor.x+=D;
-                    player.cor.x+=D; if(player.cor.x == D) player.cor.x--;
-                    score--;
-                    levelIndex--;
-                    oldLevel = true;
-                }
+                // else if(player.cor.x<=0){
+                //     level.cor.x+=D;
+                //     player.cor.x+=D; if(player.cor.x == D) player.cor.x--;
+                //     score--;
+                //     levelIndex--;
+                //     oldLevel = true;
+                // }
 
-                sprintf(sLevel, "%ld", levelIndex);
+                // sprintf(sLevel, "%ld", levelIndex);
 
                 //------------JUMPING------------
                 if(jumping) {
@@ -380,7 +381,7 @@ int main() {
             drawLevel(level);
             drawEntity(player);
             if(levelIndex!=0){
-                al_draw_filled_rectangle(0, 0, D, 35, al_map_rgba(81, 82, 116, 225));
+                al_draw_filled_rectangle(0, 0, W, 35, al_map_rgba(81, 82, 116, 225));
                 al_draw_text(font24, al_map_rgb(188, 231, 132), 500, 0, ALLEGRO_ALIGN_RIGHT, sScore);
                 al_draw_text(font24, al_map_rgb(188, 231, 132), 244, 0, ALLEGRO_ALIGN_CENTER, sLevel);
                 al_draw_text(font24, al_map_rgb(188, 231, 132), 12, 0, ALLEGRO_ALIGN_LEFT, sHP);
@@ -399,7 +400,7 @@ int main() {
                         bullet[i]->x-=10;
                     }
                     
-                    if(bullet[i]->x >= D || bullet[i]->x <= 0){
+                    if(bullet[i]->x >= W || bullet[i]->x <= 0){
                         free(bullet[i]);
                         bullet[i] = NULL;
                     }
