@@ -16,6 +16,8 @@
 #define JH    20 // jump
 #define PS     5 // Player speed
 
+#define BULLETS 2
+
 
 
 #define EON    al_get_bitmap_height(e->tex.right)*S // enemy normal offset
@@ -121,14 +123,6 @@ int main() {
 
     al_reserve_samples(3);
 
-    int range[] = {0x0020, 0x007F,  /* ASCII */};
-
-    ALLEGRO_BITMAP* font_bitmap = al_load_bitmap("mecha.png");
-    if (!font_bitmap) {
-        printf("unable to find font texture!");
-        return -1;
-    }
-
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0); if(!timer) { printf("\033[1;31mINIT_ERR: Couldn't create timer!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created timer.\033[0m\n");}
     ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue(); if(!queue) { printf("\033[1;31mINIT_ERR: Couldn't create event queue!\033[0mn\n"); return -1;} else{ printf("\33[;32mINIT: Created event queue.\033[0m\n");}
     ALLEGRO_DISPLAY* disp = al_create_display(W, H); if(!disp) { printf("\033[1;31mINIT_ERR: Couldn't create display!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created display.\033[0m\n");}
@@ -141,7 +135,6 @@ int main() {
     // enemy1_tex = al_load_bitmap("enemy1.png"); if(!enemy1_tex) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of bullet!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of title.\033[0m\n");}
     // ALLEGRO_BITMAP* player = al_load_bitmap("player.png"); if(!player) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of player!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of player.\033[0m\n");}
     // ALLEGRO_BITMAP* enemy = al_load_bitmap("enemy.png"); if(!enemy) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of enemy!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of enemy.\033[0m\n");}
-    ALLEGRO_MOUSE_STATE state;
 
     al_set_sample_instance_playmode(musicInstance, ALLEGRO_PLAYMODE_LOOP);
     al_attach_sample_instance_to_mixer(musicInstance, al_get_default_mixer());
@@ -197,20 +190,11 @@ int main() {
 
     bool inAir = false;
     bool jumping = false;
-    bool newLevel = true;
-    bool oldLevel = false;
     long score = 0;
-    long levelIndex = 0;
     int decereaseBy = 1;
     int incereaseBy = JH;
     long index = 0;
-    char sScore[20];
-    char deadScore[20];
-    char sHP[20];
-    char deadTime[50];
-    char deadLevel[50];
-    char sLevel[20];
-    bullet *bullet[2] = {0};
+    bullet *bullet[BULLETS] = {0};
     entity *enemy[50] = {0};
 
     al_play_sample_instance(musicInstance);
@@ -283,9 +267,6 @@ int main() {
                 level3.cor.x = level2.cor.x+(al_get_bitmap_width(level2.tex)*S);
                 level4.cor.x = level3.cor.x+(al_get_bitmap_width(level3.tex)*S);
 
-                // printf("dtrfhfvc,kjifvdx");
-
-
                 //------------JUMPING------------
                 if(jumping) {
 
@@ -308,7 +289,6 @@ int main() {
             
                 //------------SCORE------------
 
-                sprintf(sScore, "Score: %ld", score);
 
                 // if(score >= 100){
                 //     enemy[50] = calloc(sizeof(entity), 1);
@@ -319,82 +299,83 @@ int main() {
                 //     enemy[50]->hp = 50;
                 // }
                 //------------ENEMYES------------
-                for (int i = 0; i < 50; i++)
-                {
-                    if(enemy[i] == NULL && ((index%((60+(rand()%100)*60)))-score) == 0 && index !=0) {
-                        int r = rand() % 50;
-                        int j = rand() % 10;
-                        int c = rand() % 155;
+                
+                    for (int i = 0; i < 50; i++)
+                    {
+                        if(enemy[i] == NULL && (((index%((60+(rand()%100)*60)))-score) == 0 && index !=0)) {
+                            int r = rand() % 50;
+                            int j = rand() % 10;
+                            int c = rand() % 155;
 
-                        enemy[i] = calloc(sizeof(entity), 1);
-                        enemy[i]->tex.right = al_load_bitmap("enemy1.png");// if(!player.tex.right) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of player!\033[0m\n"); return -1;} else{ printf("\33[32mINIT: Created bitmap of player.\033[0m\n");}
-                        enemy[i]->tex.left = al_load_bitmap("enemy2.png");// if(!player.tex.left) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of player!\033[0m\n"); return -1;} else{ printf("\33[32mINIT: Created bitmap of player.\033[0m\n");}
-                        enemy[i]->dir = (j <= 3)? LEFT : RIGHT;
-                        enemy[i]->cor.x = W+r;
-                        enemy[i]->cor.y = (enemy[i]->dir == RIGHT)? DEFAULT_PLAYER_Y : DEFAULT_PLAYER_Y-EOS;
-                        enemy[i]->hp = 5;
-                        enemy[i]->dead = false;
-                        enemy[i]->clr = al_map_rgb(c+100, 0, 0);
-                        printf("Created enemy: %d\n", i);
-                    }
-
-                    if (enemy[i]!=NULL && !player.dead){
-                        AIUpdate(player, enemy[i]);
-
-                        if ((enemy[i]->cor.x<=player.cor.x || enemy[i]->cor.x<=player.cor.x+S) && (enemy[i]->cor.x+S>=player.cor.x || enemy[i]->cor.x+S>=player.cor.x+S) && enemy[i]->cor.y-95<=player.cor.y && (score<=1000? index%30==0:index%10))
-                        {
-                            player.hp--;
+                            enemy[i] = calloc(sizeof(entity), 1);
+                            enemy[i]->tex.right = al_load_bitmap("enemy1.png");// if(!player.tex.right) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of player!\033[0m\n"); return -1;} else{ printf("\33[32mINIT: Created bitmap of player.\033[0m\n");}
+                            enemy[i]->tex.left = al_load_bitmap("enemy2.png");// if(!player.tex.left) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of player!\033[0m\n"); return -1;} else{ printf("\33[32mINIT: Created bitmap of player.\033[0m\n");}
+                            enemy[i]->dir = (j <= 3)? LEFT : RIGHT;
+                            enemy[i]->cor.x = W+r;
+                            enemy[i]->cor.y = (enemy[i]->dir == RIGHT)? DEFAULT_PLAYER_Y : DEFAULT_PLAYER_Y-EOS;
+                            enemy[i]->hp = 5;
+                            enemy[i]->dead = false;
+                            enemy[i]->clr = al_map_rgb(c+100, 0, 0);
+                            printf("Created enemy: %d\n", i);
                         }
 
-                        // if(enemy[50] != NULL){
-                        //     AIUpdate(player, enemy[50]);
-                        //     if ((enemy[50]->cor.x<=player.cor.x || enemy[50]->cor.x<=player.cor.x+S) && (enemy[50]->cor.x+S>=player.cor.x || enemy[50]->cor.x+S>=player.cor.x+S) && enemy[50]->cor.y-95<=player.cor.y && (score<=1000? index%30==0:index%10))
-                        //     {
-                        //         player.hp-=5;
+                        if (enemy[i]!=NULL && !player.dead){
+                            AIUpdate(player, enemy[i]);
 
-                        //     }
-                        // }
-
-                        for (int j = 0; j < 2; j++)
-                        {
-                            
-                            if (bullet[j]==NULL || enemy[i]==NULL){
-                                break;
+                            if ((enemy[i]->cor.x<=player.cor.x || enemy[i]->cor.x<=player.cor.x+S) && (enemy[i]->cor.x+S>=player.cor.x || enemy[i]->cor.x+S>=player.cor.x+S) && enemy[i]->cor.y-95<=player.cor.y && (score<=1000? index%30==0:index%10))
+                            {
+                                player.hp--;
                             }
 
-                            // printf("%f\n", (enemy[i]->dir == RIGHT)? al_get_bitmap_height(enemy[i]->tex.right)*S : al_get_bitmap_height(enemy[i]->tex.right)*S);
-                            if(bullet[j]!= NULL && (enemy[i]->cor.x<=bullet[j]->x || enemy[i]->cor.x<=bullet[j]->x+8) && (enemy[i]->cor.x+S>=bullet[j]->x || enemy[i]->cor.x+S>=bullet[j]->x+8) && enemy[i]->cor.y <= bullet[j]->y && enemy[i]->cor.y+((enemy[i]->dir == RIGHT)?al_get_bitmap_height(enemy[i]->tex.right)*S : al_get_bitmap_height(enemy[i]->tex.right)*S) >= bullet[j]->y){
-                                free(bullet[j]);
-                                bullet[j] = NULL;
-                                enemy[i]->hp-=2;
-                                if (enemy[i]->hp >= 0)
-                                {
-                                    free(enemy[i]);
-                                    printf("Destroyed enemy: %d\n", i);
-                                    enemy[i] = NULL;
-                                    score+=10;
-                                }
-                                break;
-                            }
-                            // if(bullet[j]!= NULL && enemy[50]!=NULL && (enemy[50]->cor.x<=bullet[j]->x || enemy[50]->cor.x<=bullet[j]->x+8) && (enemy[50]->cor.x+S>=bullet[j]->x || enemy[50]->cor.x+S>=bullet[j]->x+8) && enemy[50]->cor.y<=bullet[j]->y){
-                            //     free(bullet[j]);
-                            //     bullet[j] = NULL;
-                            //     enemy[50]->hp-=2;
-                            //     if (enemy[50]->hp >= 0)
+                            // if(enemy[50] != NULL){
+                            //     AIUpdate(player, enemy[50]);
+                            //     if ((enemy[50]->cor.x<=player.cor.x || enemy[50]->cor.x<=player.cor.x+S) && (enemy[50]->cor.x+S>=player.cor.x || enemy[50]->cor.x+S>=player.cor.x+S) && enemy[50]->cor.y-95<=player.cor.y && (score<=1000? index%30==0:index%10))
                             //     {
-                            //         free(enemy[50]);
-                            //         printf("Destroyed enemy: %d\n", i);
-                            //         enemy[50] = NULL;
-                            //         score+=10000;
+                            //         player.hp-=5;
+
                             //     }
-                            //     break;
                             // }
-                            
+
+                            for (int j = 0; j < BULLETS; j++)
+                            {
+                                
+                                if (bullet[j]==NULL || enemy[i]==NULL){
+                                    break;
+                                }
+
+                                // printf("%f\n", (enemy[i]->dir == RIGHT)? al_get_bitmap_height(enemy[i]->tex.right)*S : al_get_bitmap_height(enemy[i]->tex.right)*S);
+                                if(bullet[j]!= NULL && (enemy[i]->cor.x<=bullet[j]->x || enemy[i]->cor.x<=bullet[j]->x+8) && (enemy[i]->cor.x+S>=bullet[j]->x || enemy[i]->cor.x+S>=bullet[j]->x+8) && enemy[i]->cor.y <= bullet[j]->y && enemy[i]->cor.y+((enemy[i]->dir == RIGHT)?al_get_bitmap_height(enemy[i]->tex.right)*S : al_get_bitmap_height(enemy[i]->tex.right)*S) >= bullet[j]->y){
+                                    free(bullet[j]);
+                                    bullet[j] = NULL;
+                                    enemy[i]->hp-=2;
+                                    if (enemy[i]->hp >= 0)
+                                    {
+                                        free(enemy[i]);
+                                        printf("Destroyed enemy: %d\n", i);
+                                        enemy[i] = NULL;
+                                        score+=10;
+                                    }
+                                    break;
+                                }
+                                // if(bullet[j]!= NULL && enemy[50]!=NULL && (enemy[50]->cor.x<=bullet[j]->x || enemy[50]->cor.x<=bullet[j]->x+8) && (enemy[50]->cor.x+S>=bullet[j]->x || enemy[50]->cor.x+S>=bullet[j]->x+8) && enemy[50]->cor.y<=bullet[j]->y){
+                                //     free(bullet[j]);
+                                //     bullet[j] = NULL;
+                                //     enemy[50]->hp-=2;
+                                //     if (enemy[50]->hp >= 0)
+                                //     {
+                                //         free(enemy[50]);
+                                //         printf("Destroyed enemy: %d\n", i);
+                                //         enemy[50] = NULL;
+                                //         score+=10000;
+                                //     }
+                                //     break;
+                                // }
+                                
+                            }
                         }
+                        
                     }
                     
-                }
-                
                 //------------HP------------3
                 // if(score%1000 == 0){
                 //     player.hp+=2;
@@ -406,7 +387,7 @@ int main() {
                     for (int i = 0; i < 50; i++)
                     {
                         free(enemy[i]);
-                        enemy[i] == NULL;
+                        enemy[i] = NULL;
                     }
                 }
 
@@ -437,7 +418,7 @@ just_title_screen:
                 if (event.mouse.button == 1)
                 {
                     if(!player.dead){
-                        for (int i = 0; i < 2; i++)
+                        for (int i = 0; i < BULLETS; i++)
                         {
                             if(bullet[i] == NULL){
                                 bullet[i] = calloc(sizeof(bullet), 1);
@@ -470,10 +451,7 @@ just_title_screen:
                 drawLevel(level4);
                 drawEntity(player);
                 
-                // {
-                // //     if(enemy[i]!=NULL){
-                // //         drawEnemy(enemy[i]);
-                // //     }
+
                 for (int i = 0; i < 50; i++) {
                     if(enemy[i]!=NULL) {
                         drawEnemy(enemy[i]);
@@ -486,8 +464,7 @@ just_title_screen:
                 // }
 
 
-
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < BULLETS; i++)
                 {
                     if (bullet[i] != NULL)
                     {
@@ -509,10 +486,9 @@ just_title_screen:
                     }
                 
                 }
-                oldLevel=false;
 
                 al_draw_textf(font, (player.hp<5)? al_map_rgba(255, 0, 0, 255) : al_map_rgba(255, 255, 255, 255), W/2, 10, ALLEGRO_ALIGN_CENTRE, "HP:  %3d", player.hp);
-                al_draw_textf(font, (player.hp<5)? al_map_rgba(255, 0, 0, 255) : al_map_rgba(255, 255, 255, 255), 0, 10, ALLEGRO_ALIGN_LEFT, "SCORE:  %5d", score);
+                al_draw_textf(font, (score%500 == 0)? al_map_rgba(255, 0, 0, 255) : al_map_rgba(255, 255, 255, 255), 0, 10, ALLEGRO_ALIGN_LEFT, "SCORE:  %5ld", score);
 
             } else {
                 al_clear_to_color(al_map_rgba(255, 161, 0, 100));
@@ -520,7 +496,7 @@ just_title_screen:
                                       0, 0, al_get_bitmap_width(title), al_get_bitmap_height(title),
                                       W/5, H/5, al_get_bitmap_width(title)*S, al_get_bitmap_height(title)*S, 0);
                 al_draw_text(font, al_map_rgba(0, 0, 0, 255), W/2, H/2+H/3, ALLEGRO_ALIGN_CENTRE, "Press ENTER to start.");
-                
+
                 
             }
             al_flip_display();
