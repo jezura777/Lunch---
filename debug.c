@@ -19,7 +19,7 @@
 
 
 #define EON    al_get_bitmap_height(e->tex.right)*S // enemy normal offset
-#define EOS    -al_get_bitmap_height(e->tex.right)*S // enemy spesial affset
+#define EOS    al_get_bitmap_height(enemy[i]->tex.right)*S // enemy spesial affset
 
 
 #define DEFAULT_PLAYER_Y (H/2)+10
@@ -83,7 +83,7 @@ void drawEnemy(entity *e) {
     if(e->dir == RIGHT)
         al_draw_scaled_bitmap(e->tex.right, 0, 0, al_get_bitmap_width(e->tex.right), al_get_bitmap_height(e->tex.right), e->cor.x, e->cor.y+EON, al_get_bitmap_width(e->tex.right)*S, al_get_bitmap_height(e->tex.right)*S, 0);
     if(e->dir == LEFT)
-        al_draw_scaled_bitmap(e->tex.left, 0, 0, al_get_bitmap_width(e->tex.left), al_get_bitmap_height(e->tex.left), e->cor.x, e->cor.y+EOS, al_get_bitmap_width(e->tex.left)*S, al_get_bitmap_height(e->tex.left)*S, 0);
+        al_draw_scaled_bitmap(e->tex.left, 0, 0, al_get_bitmap_width(e->tex.left), al_get_bitmap_height(e->tex.left), e->cor.x, e->cor.y, al_get_bitmap_width(e->tex.left)*S, al_get_bitmap_height(e->tex.left)*S, 0);
 }
 
 
@@ -137,7 +137,7 @@ int main() {
     ALLEGRO_SAMPLE* music = al_load_sample("music.ogg"); if(!music) { printf("\033[1;31mINIT_ERR: Couldn't create music!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created music.\033[0m\n");}
     ALLEGRO_SAMPLE_INSTANCE* musicInstance = al_create_sample_instance(music); if(!music) { printf("\033[1;31mINIT_ERR: Couldn't create music!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created music.\033[0m\n");}
     ALLEGRO_BITMAP* title = al_load_bitmap("Lunch!.png"); if(!title) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of title!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of title.\033[0m\n");}
-    ALLEGRO_BITMAP* bullet_tex = al_load_bitmap("knife.png"); if(!bullet_tex) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of bullet!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of title.\033[0m\n");}
+    ALLEGRO_BITMAP* bullet_tex = al_load_bitmap("Knife.png"); if(!bullet_tex) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of bullet!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of title.\033[0m\n");}
     // enemy1_tex = al_load_bitmap("enemy1.png"); if(!enemy1_tex) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of bullet!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of title.\033[0m\n");}
     // ALLEGRO_BITMAP* player = al_load_bitmap("player.png"); if(!player) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of player!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of player.\033[0m\n");}
     // ALLEGRO_BITMAP* enemy = al_load_bitmap("enemy.png"); if(!enemy) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of enemy!\033[0m\n"); return -1;} else{ printf("\33[;32mINIT: Created bitmap of enemy.\033[0m\n");}
@@ -242,6 +242,8 @@ int main() {
                     goto just_title_screen;
                 }
 
+                // printf("2tfyupistrdr");
+
 
 
                 // if(key[ALLEGRO_KEY_RSHIFT])
@@ -280,6 +282,8 @@ int main() {
                 level2.cor.x = level1.cor.x+(al_get_bitmap_width(level1.tex)*S);
                 level3.cor.x = level2.cor.x+(al_get_bitmap_width(level2.tex)*S);
                 level4.cor.x = level3.cor.x+(al_get_bitmap_width(level3.tex)*S);
+
+                // printf("dtrfhfvc,kjifvdx");
 
 
                 //------------JUMPING------------
@@ -327,7 +331,7 @@ int main() {
                         enemy[i]->tex.left = al_load_bitmap("enemy2.png");// if(!player.tex.left) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of player!\033[0m\n"); return -1;} else{ printf("\33[32mINIT: Created bitmap of player.\033[0m\n");}
                         enemy[i]->dir = (j <= 3)? LEFT : RIGHT;
                         enemy[i]->cor.x = W+r;
-                        enemy[i]->cor.y = DEFAULT_PLAYER_Y;
+                        enemy[i]->cor.y = (enemy[i]->dir == RIGHT)? DEFAULT_PLAYER_Y : DEFAULT_PLAYER_Y-EOS;
                         enemy[i]->hp = 5;
                         enemy[i]->dead = false;
                         enemy[i]->clr = al_map_rgb(c+100, 0, 0);
@@ -389,10 +393,10 @@ int main() {
                     
                 }
                 
-                //------------HP------------
-                if(score%100 == 0){
-                    player.hp+=2;
-                }
+                //------------HP------------3
+                // if(score%1000 == 0){
+                //     player.hp+=2;
+                // }
                 if(player.hp <= 0){
                     player.dead=false;
                     player.hp=20;
@@ -475,9 +479,9 @@ just_title_screen:
 
                 }
 
-                if (enemy[50]!=NULL){
-                    drawEnemy(enemy[50]);
-                }
+                // if (enemy[50]!=NULL){
+                //     drawEnemy(enemy[50]);
+                // }
 
 
 
