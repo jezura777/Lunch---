@@ -210,7 +210,7 @@ int main() {
     char deadTime[50];
     char deadLevel[50];
     char sLevel[20];
-    bullet *bullet[10] = {0};
+    bullet *bullet[2] = {0};
     entity *enemy[50] = {0};
 
     al_play_sample_instance(musicInstance);
@@ -355,13 +355,15 @@ int main() {
                         //     }
                         // }
 
-                        for (int j = 0; j < 10; j++)
+                        for (int j = 0; j < 2; j++)
                         {
                             
                             if (bullet[j]==NULL || enemy[i]==NULL){
                                 break;
                             }
-                            if(bullet[j]!= NULL && (enemy[i]->cor.x<=bullet[j]->x || enemy[i]->cor.x<=bullet[j]->x+8) && (enemy[i]->cor.x+S>=bullet[j]->x || enemy[i]->cor.x+S>=bullet[j]->x+8) && enemy[i]->cor.y<=bullet[j]->y){
+
+                            // printf("%f\n", (enemy[i]->dir == RIGHT)? al_get_bitmap_height(enemy[i]->tex.right)*S : al_get_bitmap_height(enemy[i]->tex.right)*S);
+                            if(bullet[j]!= NULL && (enemy[i]->cor.x<=bullet[j]->x || enemy[i]->cor.x<=bullet[j]->x+8) && (enemy[i]->cor.x+S>=bullet[j]->x || enemy[i]->cor.x+S>=bullet[j]->x+8) && enemy[i]->cor.y <= bullet[j]->y && enemy[i]->cor.y+((enemy[i]->dir == RIGHT)?al_get_bitmap_height(enemy[i]->tex.right)*S : al_get_bitmap_height(enemy[i]->tex.right)*S) >= bullet[j]->y){
                                 free(bullet[j]);
                                 bullet[j] = NULL;
                                 enemy[i]->hp-=2;
@@ -435,7 +437,7 @@ just_title_screen:
                 if (event.mouse.button == 1)
                 {
                     if(!player.dead){
-                        for (int i = 0; i < 10; i++)
+                        for (int i = 0; i < 2; i++)
                         {
                             if(bullet[i] == NULL){
                                 bullet[i] = calloc(sizeof(bullet), 1);
@@ -510,15 +512,7 @@ just_title_screen:
                 oldLevel=false;
 
                 al_draw_textf(font, (player.hp<5)? al_map_rgba(255, 0, 0, 255) : al_map_rgba(255, 255, 255, 255), W/2, 10, ALLEGRO_ALIGN_CENTRE, "HP:  %3d", player.hp);
-
-                if (player.dead)
-                {
-                    al_draw_filled_rectangle(0,0, W, H, al_map_rgba(255, 161, 0, 100));
-                    al_draw_text(font, al_map_rgb(0, 0, 0), 256, 200, ALLEGRO_ALIGN_CENTRE, "You have died!");
-                    al_draw_text(font, al_map_rgb(0, 0, 0), 256, 256, ALLEGRO_ALIGN_CENTRE, deadScore);
-                    al_draw_text(font, al_map_rgb(0, 0, 0), 256, 285, ALLEGRO_ALIGN_CENTRE, deadTime);
-                    al_draw_text(font, al_map_rgb(0, 0, 0), 256, 314, ALLEGRO_ALIGN_CENTRE, deadLevel);
-                }
+                al_draw_textf(font, (player.hp<5)? al_map_rgba(255, 0, 0, 255) : al_map_rgba(255, 255, 255, 255), 0, 10, ALLEGRO_ALIGN_LEFT, "SCORE:  %5d", score);
 
             } else {
                 al_clear_to_color(al_map_rgba(255, 161, 0, 100));
