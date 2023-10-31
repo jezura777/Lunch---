@@ -97,10 +97,10 @@ void drawLevel(level l){
 
 void AIUpdate(entity p, entity *e){
     if(p.cor.x<=e->cor.x){
-        e->cor.x-=2;
+        e->cor.x-=3;
     }
     else{
-        e->cor.x+=2;
+        e->cor.x+=3;
     }
 }
 
@@ -164,6 +164,14 @@ int main() {
     player.hp = 20;
     player.dead=false;
 
+    entity* boss = calloc(sizeof(entity), 0);
+    boss->tex.left = al_load_bitmap("Boss.png");
+    boss->dir = LEFT;
+    boss->cor.x = W;
+    boss->cor.y = DEFAULT_PLAYER_Y;
+    boss->hp = 50;
+    boss->dead = false;
+
     level level1;
     level1.tex = al_load_bitmap("map.png"); if(!level1.tex) { printf("\033[1;31mINIT_ERR: Couldn't create bitmap of level 1!\033[0m\n"); return -1;} else{ printf("\33[32mINIT: Created bitmap of level 1.\033[0m\n"); }
     level1.cor.x = 0;
@@ -190,6 +198,7 @@ int main() {
 
     bool inAir = false;
     bool jumping = false;
+    bool bossS = false;
     long score = 0;
     int decereaseBy = 1;
     int incereaseBy = JH;
@@ -290,14 +299,16 @@ int main() {
                 //------------SCORE------------
 
 
-                // if(score >= 100){
+                if(score%100 == 0 && score != 0){
+                    bossS = true;
+                    printf("Boss Spawned!!\n");
                 //     enemy[50] = calloc(sizeof(entity), 1);
                 //     enemy[50]->cor.x = W;
                 //     enemy[50]->cor.y = DEFAULT_PLAYER_Y;
                 //     enemy[50]->tex.right = al_load_bitmap("Boss.png");
                 //     enemy[50]->dir = RIGHT;
                 //     enemy[50]->hp = 50;
-                // }
+                }
                 //------------ENEMYES------------
                 
                     for (int i = 0; i < 50; i++)
@@ -357,25 +368,37 @@ int main() {
                                     }
                                     break;
                                 }
-                                // if(bullet[j]!= NULL && enemy[50]!=NULL && (enemy[50]->cor.x<=bullet[j]->x || enemy[50]->cor.x<=bullet[j]->x+8) && (enemy[50]->cor.x+S>=bullet[j]->x || enemy[50]->cor.x+S>=bullet[j]->x+8) && enemy[50]->cor.y<=bullet[j]->y){
-                                //     free(bullet[j]);
-                                //     bullet[j] = NULL;
-                                //     enemy[50]->hp-=2;
-                                //     if (enemy[50]->hp >= 0)
-                                //     {
-                                //         free(enemy[50]);
-                                //         printf("Destroyed enemy: %d\n", i);
-                                //         enemy[50] = NULL;
-                                //         score+=10000;
-                                //     }
-                                //     break;
-                                // }
                                 
                             }
                         }
                         
                     }
                     
+                if(bossS){
+                    AIUpdate(player, boss);
+                    if ((boss->cor.x<=player.cor.x || boss->cor.x<=player.cor.x+S) && (boss->cor.x+S>=player.cor.x || boss->cor.x+S>=player.cor.x+S) && boss->cor.y-95<=player.cor.y && (score<=1000? index%30==0:index%10))
+                    {
+                        player.hp-=5;
+                    }
+
+                    for(int j = 0; j>BULLETS; j++) {
+
+                        if(bullet[j]!= NULL && (boss->cor.x<=bullet[j]->x && boss->cor.x+al_get_bitmap_height(boss->tex.left)*S>=bullet[j]->x)){
+                            free(bullet[j]);
+                            bullet[j] = NULL;
+                            boss->hp-=2;
+                            if (boss->hp >= 0)
+                            {
+                                free(boss);
+                                printf("Destroyed enemy: boss\n");
+                                boss = NULL;
+                                score+=10000;
+                            }
+                            break;
+                        }
+                    }
+                }
+
                 //------------HP------------3
                 // if(score%1000 == 0){
                 //     player.hp+=2;
@@ -383,6 +406,7 @@ int main() {
                 if(player.hp <= 0){
                     player.dead=false;
                     player.hp=20;
+                    bossS = false;
                     in_title_screen = true;
                     for (int i = 0; i < 50; i++)
                     {
@@ -459,9 +483,9 @@ just_title_screen:
 
                 }
 
-                // if (enemy[50]!=NULL){
-                //     drawEnemy(enemy[50]);
-                // }
+                if (bossS){
+                    drawEnemy(boss);
+                }
 
 
                 for (int i = 0; i < BULLETS; i++)
