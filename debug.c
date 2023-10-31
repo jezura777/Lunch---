@@ -313,7 +313,7 @@ int main() {
                             enemy[i]->dir = (j <= 3)? LEFT : RIGHT;
                             enemy[i]->cor.x = W+r;
                             enemy[i]->cor.y = (enemy[i]->dir == RIGHT)? DEFAULT_PLAYER_Y : DEFAULT_PLAYER_Y-EOS;
-                            enemy[i]->hp = 5;
+                            enemy[i]->hp = 4;
                             enemy[i]->dead = false;
                             enemy[i]->clr = al_map_rgb(c+100, 0, 0);
                             printf("Created enemy: %d\n", i);
@@ -348,7 +348,7 @@ int main() {
                                     free(bullet[j]);
                                     bullet[j] = NULL;
                                     enemy[i]->hp-=2;
-                                    if (enemy[i]->hp >= 0)
+                                    if (enemy[i]->hp <= 0)
                                     {
                                         free(enemy[i]);
                                         printf("Destroyed enemy: %d\n", i);
